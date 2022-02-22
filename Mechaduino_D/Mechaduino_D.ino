@@ -46,14 +46,21 @@
 #include "State.h"
 #include "analogFastWrite.h"
 
-// Global variables for operation of Mechaduino C:
+//  Here are the variables for the moveRel function running in the loop
+//  The moveRel function defines the number of steps as a float, and the velocity
+//  as an int, so that convention has been followed. 
+//  there is also an acceleration int, but we will tune this manually.
 
-float Distance_C = 1000; // this placeholder value will be replaced by the output of wave data math
-int Velocity_C = 1500; // this placeholder value will be replaced by the output of wave data math
+   float distance = 180;
+   int velocity = 100;
+
+
+
 
 //////////////////////////////////////
 /////////////////SETUP////////////////
 //////////////////////////////////////
+
 
 void setup()        // This code runs once at startup
 {                         
@@ -77,42 +84,12 @@ void setup()        // This code runs once at startup
   
   //    configureStepDir();           // Configures setpoint to be controlled by step/dir interface
   //    configureEnablePin();         // Active low, for use wath RAMPS 1.4 or similar
-  enableTCInterrupts();         // uncomment this line to start in closed loop 
-  mode = 'x';                   // start in position mode
+        enableTCInterrupts();         // uncomment this line to start in closed loop 
+        mode = 'x';                   // start in position mode
 
-  pinMode(2, INPUT); // set input pin for limit switch 
-  // Limit switch is high when up, or not in contact with carriage, and low when pressed down
-
-  // rotate rail stepper up towards limit switch at top of track
-  while (r > -5000.0){ 
-  /*************************************************************************
-  the number in the line above needs to be adjusted based on track length
-  *************************************************************************/
-    
-    // check to see if limit switch is up or HIGH at each step
-    if (digitalRead(2) == HIGH){ 
-        r -= 0.1; 
-        delayMicroseconds(100);
-    }
-    
-    // if limit switch is pressed down by carriage, then quit out of while loop
-    else {
-        break; 
-    }
-  }
-  delay(1000);
-
-  // return carriage towards middle of linear rail.
-  while (r < 100.0){ 
-    /*************************************************************************
-    the number in the line above needs to be adjusted based on Distance variable
-    *************************************************************************/
-    r += 0.1;
-    delayMicroseconds(100);
-  }
-  delay(1000);      
-  
 }
+  
+
 
 //////////////////////////////////////
 /////////////////LOOP/////////////////
@@ -122,25 +99,16 @@ void setup()        // This code runs once at startup
 void loop()                 // main loop
 {
 
-  // variability code if desired
-  /*
-  float randDistance;
-  int randSpeed;
-  randDistance = random(500, 700);
-  randSpeed = random(1200, 2200);
-  */
-
-  // move carriage upwards on linear rail
-  moveRel(-Distance_C, Velocity_C, 400);
-  delay (10);
-
-  // move carriage downwards on linear rail
-  moveRel(Distance_C, Velocity_C, 400);
-  delay (10);
-
-
-  //serialCheck();              //must have this execute in loop for serial commands to function
+  serialCheck();              //must have this execute in loop for serial commands to function
 
   //r=0.1125*step_count;      //Don't use this anymore. Step interrupts enabled above by "configureStepDir()", adjust step size ("stepangle")in parameters.cpp
+
+  // below is an implimentation of the 'trapezoidal speed trajectory' function that
+  // is built in to the Mechaduino firmware, and we will use to run the steppers
+  
+  moveRel(distance,velocity,30);
+  delay(500);
+  moveRel(-distance,velocity,20);
+  delay(500);
 
 }

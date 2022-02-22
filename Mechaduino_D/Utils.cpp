@@ -368,13 +368,13 @@ float read_angle() {
   return lookup[encoderReading / avg];
 }
 
-#define WDBuffSize 6;
+#define WDBuffSize 6
 
 static char SwH[WDBuffSize];
 static char SwP[WDBuffSize];
 static char *DataPtr;
 
-void ProcessingWaveData(char WaveData) {
+void ProcessWaveData(char WaveData) {
 
   float SwHf;
   float SwPf;
@@ -382,7 +382,7 @@ void ProcessingWaveData(char WaveData) {
   if (WaveData == '\0') {
     memset(SwH, '\0', WDBuffSize);
     memset(SwP, '\0', WDBuffSize);
-    DataPtr = SwD;
+    DataPtr = SwH;
     return;
   }
 
@@ -403,7 +403,7 @@ void ProcessingWaveData(char WaveData) {
 
 static int ReadingWaveData = false;
 
-void serialCheck() {  //Monitors serial for commands.  Must be called in routinely in loop for serial interface to work.
+void serialCheck() {        //Monitors serial for commands.  Must be called in routinely in loop for serial interface to work.
 
   char inChar;
 
@@ -417,7 +417,6 @@ void serialCheck() {  //Monitors serial for commands.  Must be called in routine
       if (inChar == ';') {
         ReadingWaveData = false;
       }
-
       return;
     }
 
@@ -522,7 +521,9 @@ void serialCheck() {  //Monitors serial for commands.  Must be called in routine
       break;
     }
   }
+
 }
+
 
 void parameterQuery() {         //print current parameters in a format that can be copied directly in to Parameters.cpp
   SerialUSB.println(' ');
