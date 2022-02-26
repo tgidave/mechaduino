@@ -4,8 +4,8 @@
 
 #define DATA_BUFF_LEN 1024
 
-#define SWH_OFFSET 28
-#define SWP_OFFSET 28
+#define WVHT_OFFSET 40
+#define SWP_OFFSET  28
 
 int main (int argc, char *argv[])
 {
@@ -13,7 +13,7 @@ int main (int argc, char *argv[])
   char DataBuffer[DATA_BUFF_LEN];
   char *BuffPtr;
   char *EndPtr;
-  char SwH[6];
+  char WVHT[6];
   char SwP[6];
 
   if (argc != 2) {
@@ -39,9 +39,9 @@ int main (int argc, char *argv[])
       }
     }
 
-    if ((BuffPtr = strstr(DataBuffer, "Swell Height (SwH):")) != NULL) {
-      strncpy(SwH, (BuffPtr + SWH_OFFSET), 5);
-      *(SwH + 5) = 0;
+    if ((BuffPtr = strstr(DataBuffer, "Significant Wave Height (WVHT):")) != NULL) {
+      strncpy(WVHT, (BuffPtr + WVHT_OFFSET), 5);
+      *(WVHT + 5) = 0;
       continue;
     }
 
@@ -52,10 +52,8 @@ int main (int argc, char *argv[])
     }
   }
 
-  printf("SwH = %s\n", SwH);
+  printf("WVHT = %s\n", WVHT);
   printf("SwP = %s\n", SwP);
-
-
 
   return(0);
 }
