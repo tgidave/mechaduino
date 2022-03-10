@@ -12,7 +12,6 @@ int main (int argc, char *argv[])
   FILE *fp;
   char DataBuffer[DATA_BUFF_LEN];
   char *BuffPtr;
-  char *EndPtr;
   char WVHT[6];
   char SwP[6];
 
