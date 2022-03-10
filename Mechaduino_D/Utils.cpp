@@ -368,37 +368,58 @@ float read_angle() {
   return lookup[encoderReading / avg];
 }
 
-#define WDBuffSize 6
+//#define SERIAL_BLINK_DEBUG
 
-static char SwH[WDBuffSize];
-static char SwP[WDBuffSize];
+#define WDBuffSize 7
+
+static char newCharDist[WDBuffSize];
+static char newCharVel[WDBuffSize];
 static char *DataPtr;
 
 void ProcessWaveData(char WaveData) {
 
-  float SwHf;
-  float SwPf;
+  float newDistance;
+  float newVelocity;
 
   if (WaveData == '\0') {
-    memset(SwH, '\0', WDBuffSize);
-    memset(SwP, '\0', WDBuffSize);
-    DataPtr = SwH;
+    memset(newCharDist, '\0', WDBuffSize);
+    memset(newCharVel, '\0', WDBuffSize);
+    DataPtr = newCharDist;
     return;
   }
 
   if (WaveData == ',') {
-    DataPtr = SwP;
+#ifdef SERIAL_BLINK_DEBUG
+    SerialUSB.print(",\n");
+#endif
+    DataPtr = newCharVel;
     return;
   }
 
   if (WaveData == ';') {
-    SwHf = strtof(SwH, NULL);
-    SwPf = strtof(SwP, NULL);
+#ifdef SERIAL_BLINK_DEBUG
+    SerialUSB.print(";\n");
+#endif
+    newDistance = strtof(newCharDist, NULL);
+    newVelocity = strtof(newCharVel, NULL);
+#ifdef SERIAL_BLINK_DEBUG
+    SerialUSB.print(hiDelay, 2);
+    SerialUSB.write('\n');
+    SerialUSB.print(loDelay, 2);
+    SerialUSB.write('\n');
+#endif
     //Move the wave data to the proper place.
     return;
   }
 
   *DataPtr = WaveData;
+  ++DataPtr;
+#ifdef SERIAL_BLINK_DEBUG
+  SerialUSB.print(SwH);
+  SerialUSB.write('\n');
+  SerialUSB.print(SwP);
+  SerialUSB.write('\n');
+#endif
 }
 
 static int ReadingWaveData = false;
