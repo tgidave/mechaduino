@@ -160,7 +160,7 @@ int main(int argc, char *argv[]) {
   // Set in/out baud rate to be 115200
   cfsetispeed(&tty, B115200);
   cfsetospeed(&tty, B115200);
-sd
+
   // Save tty settings, also checking for error
   if (tcsetattr(serialPort, TCSANOW, &tty) != 0) {
       printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
