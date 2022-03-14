@@ -368,7 +368,15 @@ float read_angle() {
   return lookup[encoderReading / avg];
 }
 
-//#define SERIAL_BLINK_DEBUG
+// Warning!!!
+// 
+// The next instruction enables debugging output from the processWaveData routine.  
+// The debugging output is only available when sending the data string from a serial
+// console.  For normal processing the define should be commented out.  If debugging 
+// is enabled during normal processing, all debugging information will be lost and 
+// unpredictable results may occur.
+ 
+//#define PWD_DEBUG
 
 #define WDBuffSize 7
 
@@ -387,7 +395,7 @@ static char *dataPtr; // Pointer to where the next charactor will be saved.
 //    The next field is the new distance value.  The field can be 1 to 6 charactors.
 //    Only numeric data can be sent except for an optional decimal point.
 // 
-//    A comma (,) follows the new distance field  It indicates the end of the 
+//    A comma (,) follows the new distance field.  It indicates the end of the 
 //    distance field and the beginning of the new velocity field.  The charactor
 //    pointer is set to the first byte of the new velocity field.
 // 
@@ -424,7 +432,7 @@ void processWaveData(char waveData) {
   if (waveData == ',') {  // If this is the end of the distance field, point the 
                           // data pointer to the beginning of the velocity field.
 
-#ifdef SERIAL_BLINK_DEBUG
+#ifdef PWD_DEBUG
     SerialUSB.print(",\n");
 #endif
     dataPtr = newCharVel; // Point the data pointer to the first charactor of the velocity field.
@@ -433,12 +441,12 @@ void processWaveData(char waveData) {
 
   if (waveData == ';') {  // if this is the end of the transmission, finish processing all data.
                        
-#ifdef SERIAL_BLINK_DEBUG
+#ifdef PWD_DEBUG
     SerialUSB.print(";\n");
 #endif
     newDistance = strtof(newCharDist, NULL);  // convert the new distance charactor string to a float.
     newVelocity = strtof(newCharVel, NULL);   // convert the new velocity charactor string to a float.
-#ifdef SERIAL_BLINK_DEBUG
+#ifdef PWD_DEBUG
     SerialUSB.print(hiDelay, 2);
     SerialUSB.write('\n');
     SerialUSB.print(loDelay, 2);
@@ -451,7 +459,7 @@ void processWaveData(char waveData) {
   *dataPtr = waveData;  // Store the data in the proper place.
   ++dataPtr;            // Bump the pointer to the next charactor.
 
-#ifdef SERIAL_BLINK_DEBUG
+#ifdef PWD_DEBUG
   SerialUSB.print(newCharDist);
   SerialUSB.write('\n');
   SerialUSB.print(newCharVel);
