@@ -372,36 +372,72 @@ float read_angle() {
 
 #define WDBuffSize 7
 
-static char newCharDist[WDBuffSize];
-static char newCharVel[WDBuffSize];
-static char *DataPtr;
+static char newCharDist[WDBuffSize];  // Holding area for new wave distance.
+static char newCharVel[WDBuffSize];   // Holding area for new wave velocity.
+static char *dataPtr; // Pointer to where the next charactor will be saved.
 
-void ProcessWaveData(char WaveData) {
+// This routine processes new wave data passed down the serial line from another
+// computer.  The format of the data must be as follows:  
+// 
+//    The first byte should be a capitol W to signify the beginning of the message.
+//    This byte will be replaced by a binary zero when this routine is called
+//    to indicate this routine should initialize everyting that needs to be
+//    initailized.
+// 
+//    The next field is the new distance value.  The field can be 1 to 6 charactors.
+//    Only numeric data can be sent except for an optional decimal point.
+// 
+//    A comma (,) follows the new distance field  It indicates the end of the 
+//    distance field and the beginning of the new velocity field.  The charactor
+//    pointer is set to the first byte of the new velocity field.
+// 
+//    The new velocity field is received next and can be one to six charactors
+//    long and can contain an optional decimal point.
+// 
+//    A terminating semicolon (;) follows the last byte of the new velocity field.
+//    it indicates the end of the message.  Final processing of the new charactor
+//    field and the new velocity field is performed when this charactor is received.
+// 
+      
+void processWaveData(char waveData) {
 
-  float newDistance;
-  float newVelocity;
+  float newDistance;  // New distance value converted to float type here.
+  float newVelocity;  // New velocity value converted to float type here.
 
-  if (WaveData == '\0') {
-    memset(newCharDist, '\0', WDBuffSize);
-    memset(newCharVel, '\0', WDBuffSize);
-    DataPtr = newCharDist;
+  if (waveData == '\0') { // If a binary zero was received just initialize 
+                          // this routine and return; 
+
+    // Set the holding fields to all binary zeros.  The holding fields are one
+    // byte longer then the maximum data that will be received.  Clearing the 
+    // entire field to NULLs means we do not have to worry about making sure there is 
+    // a string ending NULL charactor at the end of the string.  It will always be there.
+
+    memset(newCharDist, '\0', WDBuffSize);  // Clear out the charactor distance
+                                            // holding field to binary zeros.
+    memset(newCharVel, '\0', WDBuffSize);   // Clear out the charactor velocity
+                                            // holding field to binary zeros.    
+    dataPtr = newCharDist;                  // Point the data pointer to the
+                                            // beginning of the distance field.
     return;
   }
 
-  if (WaveData == ',') {
+  if (waveData == ',') {  // If this is the end of the distance field, point the 
+                          // data pointer to the beginning of the velocity field.
+
 #ifdef SERIAL_BLINK_DEBUG
     SerialUSB.print(",\n");
 #endif
-    DataPtr = newCharVel;
+    dataPtr = newCharVel; // Point the data pointer to the first charactor of the velocity field.
     return;
   }
 
-  if (WaveData == ';') {
+  if (waveData == ';') {  // if this is the end of the transmission, finish processing all data.
+                       
 #ifdef SERIAL_BLINK_DEBUG
     SerialUSB.print(";\n");
 #endif
-    newDistance = strtof(newCharDist, NULL);
-    newVelocity = strtof(newCharVel, NULL);
+    newDistance = strtof(newCharDist, NULL);  // convert the new distance charactor string to a float.
+    newVelocity = strtof(newCharVel, NULL);   // convert the new velocity charactor string to a float.
 #ifdef SERIAL_BLINK_DEBUG
     SerialUSB.print(hiDelay, 2);
     SerialUSB.write('\n');
@@ -412,19 +448,21 @@ void ProcessWaveData(char WaveData) {
     return;
   }
 
-  *DataPtr = WaveData;
-  ++DataPtr;
+  *dataPtr = waveData;  // Store the data in the proper place.
+  ++dataPtr;            // Bump the pointer to the next charactor.
+
 #ifdef SERIAL_BLINK_DEBUG
-  SerialUSB.print(SwH);
+  SerialUSB.print(newCharDist);
   SerialUSB.write('\n');
-  SerialUSB.print(SwP);
+  SerialUSB.print(newCharVel);
   SerialUSB.write('\n');
 #endif
 }
 
-static int ReadingWaveData = false;
+static int readingWaveData = false;
 
-void serialCheck() {        //Monitors serial for commands.  Must be called in routinely in loop for serial interface to work.
+void serialCheck() {        //Monitors serial for commands.  Must be called routinely 
+                            //in the loop function for serial interface to work.
 
   char inChar;
 
@@ -432,20 +470,21 @@ void serialCheck() {        //Monitors serial for commands.  Must be called in r
 
     inChar = (char)SerialUSB.read();
 
-    if (ReadingWaveData) {
-      ProcessWaveData(inChar);
+    if (readingWaveData) {        // Check to see of we are processing new wave data.
+      processWaveData(inChar);    // We are, go process this charactor
 
-      if (inChar == ';') {
-        ReadingWaveData = false;
+      if (inChar == ';') {        // Check to see of we are done.
+        readingWaveData = false;  // We are, so stop processing wave data.
       }
-      return;
+      return;   // Just return from this routine to prevent the rest of the case statement
+                // from trying to process this data.
     }
 
     switch (inChar) {
 
-    case 'W':
-      ReadingWaveData = true;
-      ProcessWaveData('\0');
+    case 'W': // New wave data?
+      readingWaveData = true; // Remember we are processing wave data.
+      processWaveData('\0');  // Initialize the processWaveData routine.
       break;
 
     case 'p':             //print
