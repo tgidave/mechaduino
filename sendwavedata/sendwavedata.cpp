@@ -19,33 +19,31 @@ void printHelp(void) {
 
 int main(int argc, char *argv[]) {
 
-  int argIx;
-  int operandLen;
-  char waveHeight[ARG_MAX_STRING_LEN + 1];
-  char wavePeriod[ARG_MAX_STRING_LEN + 1];
-  char fn[FN_MAX_STRING_LEN + 1];
-  char serialDataString[SERIAL_DATA_STREAM_LEN];
+  int argIx;  // argument index
+  int operandLen; // Operand length temporary storage.
+  char waveHeight[ARG_MAX_STRING_LEN + 1];  // string storage for wave heigth
+  char wavePeriod[ARG_MAX_STRING_LEN + 1];  // string storage for wave period
+  char fn[FN_MAX_STRING_LEN + 1]; // string storage for file name
+  char serialDataString[SERIAL_DATA_STREAM_LEN];  // string storage for serial data string.
   struct termios tty; // termios struct, we call it 'tty' for convention
-  int serialPort;
+  int serialPort; // file descriptor index. 
 
 
-// we are expecting at least one argument.
+// We are expecting at least one argument.
   if (argc == 1) {
     printf("\nError: No arguments specified!!!\n\n");
     printHelp();
     exit(1);
   }
 
+  // Initialize the local variables.
   argIx = 1;
   waveHeight[0] = '\0';
   wavePeriod[0] = '\0';
-//  memset(waveHeight, '\0', sizeof(waveHeight));
-//  memset(wavePeriod, '\0', sizeof(wavePeriod));
   fn[0] = '\0';
   serialDataString[0] = '\0';
 
-// check the arguments.
-
+  // check the arguments.
   while (argIx < argc) {
     if (argv[argIx][0] == '-') {
       switch (argv[argIx][1]) {
@@ -162,7 +160,7 @@ int main(int argc, char *argv[]) {
   // Set in/out baud rate to be 115200
   cfsetispeed(&tty, B115200);
   cfsetospeed(&tty, B115200);
-
+sd
   // Save tty settings, also checking for error
   if (tcsetattr(serialPort, TCSANOW, &tty) != 0) {
       printf("Error %i from tcsetattr: %s\n", errno, strerror(errno));
