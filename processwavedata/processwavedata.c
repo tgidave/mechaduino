@@ -111,9 +111,9 @@ int main (int argc, char *argv[])
     wvht = 10.99;
   }
 
-  if (swp > 4.375) {
-    swp = 4.375;
-  }
+//  if (swp > 4.375) {
+//    swp = 4.375;
+//  }
 
   // distance = (SwH / 2)*1350
   dist = (wvht / 2) * 1350;
