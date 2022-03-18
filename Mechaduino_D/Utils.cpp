@@ -447,9 +447,9 @@ void processWaveData(char waveData) {
     newDistance = strtof(newCharDist, NULL);  // convert the new distance charactor string to a float.
     newVelocity = strtof(newCharVel, NULL);   // convert the new velocity charactor string to a float.
 #ifdef PWD_DEBUG
-    SerialUSB.print(hiDelay, 2);
+    SerialUSB.print(newDistance, 2);
     SerialUSB.write('\n');
-    SerialUSB.print(loDelay, 2);
+    SerialUSB.print(newVelocity, 2);
     SerialUSB.write('\n');
 #endif
     //Move the wave data to the proper place.

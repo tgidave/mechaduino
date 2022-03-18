@@ -1,11 +1,6 @@
-//*****************************************************************************
-// getwavedata.c
+ //*****************************************************************************
+// processwavedata.c
 //
-// This program opens a file which is the output of a wget command and then
-// scans the file line by line searching for two strings and then outputs
-// the data associated with that character string.
-// 
-// The file name of the wget output file is the only parameter required.
 // 
 //******************************************************************************  
 
@@ -13,11 +8,15 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define DATA_BUFF_LEN 1024
+#define DATA_BUFF_LEN 128
 
 // These are the offsets from the searched for strings to the wanted data.
-#define WVHT_OFFSET 40
-#define SWP_OFFSET  28
+//#define WVHT_OFFSET 40
+//#define SWP_OFFSET  28
+
+void printHelp(void) {
+  printf("something went wrong somewhere!\n");
+}
 
 int main (int argc, char *argv[])
 {
@@ -25,12 +24,12 @@ int main (int argc, char *argv[])
   FILE *ofp;
   char DataBuffer[DATA_BUFF_LEN];
   char *BuffPtr;
-  char WVHT[6];
-  char SwP[6];
-
-  void printHelp(void) {
-    printf("something went wrong somewhere!\n");
-  }
+  char charWVHT[7];
+  char charSwP[7];
+  float wvht;
+  float swp;
+  float dist;
+  float vel;
 
   if (argc > 1) {
     if ((strcmp(argv[1], "-h") == 0) || 
@@ -91,26 +90,43 @@ int main (int argc, char *argv[])
     }
 
     // Scan the line looking for keyword.
-    if ((BuffPtr = strstr(DataBuffer, "Significant Wave Height (WVHT):")) != NULL) {
-      strncpy(WVHT, (BuffPtr + WVHT_OFFSET), 5);  // Found the keyword, move it to the output buffer.
-      *(WVHT + 5) = 0;  // Terminate the string.
+    if ((BuffPtr = strstr(DataBuffer, "WVHT =")) != NULL) {
+      strncpy(charWVHT, BuffPtr + 6, 6);  // Found the keyword, move it to the output buffer.
+      *(charWVHT + 6) = 0;  // Terminate the string.
       continue; // Go back and look for more.
     }
 
     // Scan the line looking for keyword.
-    if ((BuffPtr = strstr(DataBuffer, "Swell Period (SwP):")) != NULL) {
-      strncpy(SwP, (BuffPtr + SWP_OFFSET), 5);  // Found the keyword, move it to the output buffer.
-      *(SwP + 5) = 0; // Terminate the string.
+    if ((BuffPtr = strstr(DataBuffer, "SwP =")) != NULL) {
+      strncpy(charSwP, BuffPtr + 5, 6);  // Found the keyword, move it to the output buffer.
+      *(charSwP + 6) = 0; // Terminate the string.
       continue; // Go back and look for more.
     }
   }
 
+  wvht = strtof(charWVHT, NULL);
+  swp = strtof(charSwP, NULL);
+
+  if (wvht > 10.99) {
+    wvht = 10.99;
+  }
+
+  if (swp > 4.375) {
+    swp = 4.375;
+  }
+
+  // distance = (SwH / 2)*1350
+  dist = (wvht / 2) * 1350;
+
+  // velocity = -216.7(SwP/SwH)+ 1247
+  vel = (-216.7 * (swp / wvht)) + 1247; 
+
   // Print the output values.  
-  fprintf(ofp, "WVHT = %s\n", WVHT);
-  fprintf(ofp, "SwP = %s\n", SwP);
-// add code to output data to a file to be passed to the next program.
+  fprintf(ofp, "dist = %f\n", dist);
+  fprintf(ofp, "vel = %f\n", vel);
   fclose(ifp);
   fclose(ofp);
   return(0);
 }
 
+                   
