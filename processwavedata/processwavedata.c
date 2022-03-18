@@ -104,9 +104,11 @@ int main (int argc, char *argv[])
     }
   }
 
+  // Convert both values to float.
   wvht = strtof(charWVHT, NULL);
   swp = strtof(charSwP, NULL);
 
+  // Cap the height to 10.99 feet.
   if (wvht > 10.99) {
     wvht = 10.99;
   }
@@ -115,10 +117,10 @@ int main (int argc, char *argv[])
 //    swp = 4.375;
 //  }
 
-  // distance = (SwH / 2)*1350
+  // Formula from Cy's spec "distance = (SwH / 2)*1350"
   dist = (wvht / 2) * 1350;
 
-  // velocity = -216.7(SwP/SwH)+ 1247
+  // Formula from Cy's spec "velocity = -216.7(SwP/SwH)+ 1247"
   vel = (-216.7 * (swp / wvht)) + 1247; 
 
   // Print the output values.  
