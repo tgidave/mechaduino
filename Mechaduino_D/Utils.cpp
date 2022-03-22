@@ -409,8 +409,8 @@ static char *dataPtr; // Pointer to where the next charactor will be saved.
       
 void processWaveData(char waveData) {
 
-  float newDistance;  // New distance value converted to float type here.
-  float newVelocity;  // New velocity value converted to float type here.
+  float newDist;  // New distance value converted to float type here.
+  int newVel;  // New velocity value converted to float type here.
 
   if (waveData == '\0') { // If a binary zero was received just initialize 
                           // this routine and return; 
@@ -444,15 +444,16 @@ void processWaveData(char waveData) {
 #ifdef PWD_DEBUG
     SerialUSB.print(";\n");
 #endif
-    newDistance = strtof(newCharDist, NULL);  // convert the new distance charactor string to a float.
-    newVelocity = strtof(newCharVel, NULL);   // convert the new velocity charactor string to a float.
+
+    newDist = strtof(newCharDist, NULL);  // convert the new distance charactor string to a float.
+    newVel = atoi(newCharVel);           // convert the new velocity charactor string to a float.
+
 #ifdef PWD_DEBUG
-    SerialUSB.print(newDistance, 2);
+    SerialUSB.print(newDist, 2);
     SerialUSB.write('\n');
-    SerialUSB.print(newVelocity, 2);
+    SerialUSB.print(newVel);
     SerialUSB.write('\n');
 #endif
-    //Move the wave data to the proper place.
     return;
   }
 

@@ -46,24 +46,30 @@
 #include "State.h"
 #include "analogFastWrite.h"
 
-//  Here are the variables for the moveRel function running in the loop
-//  The moveRel function defines the number of steps as a float, and the velocity
-//  as an int, so that convention has been followed. 
-//  there is also an acceleration int, but we will tune this manually.
+  
+  //  Here are the initial variables for the moveRel function.
+  //  The moveRel function defines the number of steps as a float, and the velocity
+  //  as an int, so that convention has been followed. 
+  //  there is also an acceleration int, but we will tune this manually.
 
-   float distance = 180;
-   int velocity = 100;
+  float distance = 180;
+  int velocity = 100;
 
+  // The new distance and velocity from the serialCheck routine
+  // are moved here after they are received.  They will be processed
+  // in the loop after the serialCheck routine returns.
 
-
+  float newDist;
+  int  newVel;
 
 //////////////////////////////////////
 /////////////////SETUP////////////////
 //////////////////////////////////////
 
-
 void setup()        // This code runs once at startup
-{                         
+{  
+  newDist = distance;                       
+  newVel = velocity;
    
   digitalWrite(ledPin,HIGH);        // turn LED on 
   setupPins();                      // configure pins
@@ -100,6 +106,17 @@ void loop()                 // main loop
 {
 
   serialCheck();              //must have this execute in loop for serial commands to function
+
+  // If a new distance or velocity was received.
+  if (!((distance == newDist) && (velocity == newVel))) {
+
+    if ((newDist - distance) != 0) {
+      moveRel((newDist - distance), newVel, 20); // Move the motor to the new bottom point.
+    }
+
+    distance = newDist; // Update the distance value with the new distance value.
+    velocity = newVel; // Update the velocity value with the new velocity value. 
+  }
 
   //r=0.1125*step_count;      //Don't use this anymore. Step interrupts enabled above by "configureStepDir()", adjust step size ("stepangle")in parameters.cpp
 
