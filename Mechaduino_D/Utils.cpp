@@ -11,6 +11,9 @@
 #include "State.h"
 #include "analogFastWrite.h"
 
+// This function is in the loop function in Mechaduino.ino
+void updateWaveData(float newPwdDist, int NewPwdVel);
+
 void setupPins() {
 
   pinMode(VREF_2, OUTPUT);
@@ -409,8 +412,11 @@ static char *dataPtr; // Pointer to where the next charactor will be saved.
       
 void processWaveData(char waveData) {
 
-  float newDist;  // New distance value converted to float type here.
-  int newVel;  // New velocity value converted to float type here.
+  float newPwdDist;
+  int newPwdVel;
+
+//  float newDist;  // New distance value converted to float type here.
+//  int newVel;  // New velocity value converted to float type here.
 
   if (waveData == '\0') { // If a binary zero was received just initialize 
                           // this routine and return; 
@@ -445,8 +451,9 @@ void processWaveData(char waveData) {
     SerialUSB.print(";\n");
 #endif
 
-    newDist = strtof(newCharDist, NULL);  // convert the new distance charactor string to a float.
-    newVel = atoi(newCharVel);           // convert the new velocity charactor string to a float.
+    newPwdDist = strtof(newCharDist, NULL);  // convert the new distance charactor string to a float.
+    newPwdVel = atoi(newCharVel);           // convert the new velocity charactor string to a float.
+    updateWaveData(newPwdDist, newPwdVel);
 
 #ifdef PWD_DEBUG
     SerialUSB.print(newDist, 2);

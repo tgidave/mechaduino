@@ -47,20 +47,25 @@
 #include "analogFastWrite.h"
 
   
-  //  Here are the initial variables for the moveRel function.
-  //  The moveRel function defines the number of steps as a float, and the velocity
-  //  as an int, so that convention has been followed. 
-  //  there is also an acceleration int, but we will tune this manually.
+//  Here are the initial variables for the moveRel function.
+//  The moveRel function defines the number of steps as a float, and the velocity
+//  as an int, so that convention has been followed. 
+//  there is also an acceleration int, but we will tune this manually.
 
-  float distance = 180;
-  int velocity = 100;
+float distance = 180;
+int velocity = 100;
 
-  // The new distance and velocity from the serialCheck routine
-  // are moved here after they are received.  They will be processed
-  // in the loop after the serialCheck routine returns.
+// The new distance and velocity from the serialCheck routine
+// are moved here after they are received.  They will be processed
+// in the loop after the serialCheck routine returns.
 
   float newDist;
   int  newVel;
+
+void updateWaveData(float newPwdDist, int newPwdVel) {
+  newDist = newPwdDist;
+  newVel = newPwdVel;
+}
 
 //////////////////////////////////////
 /////////////////SETUP////////////////
