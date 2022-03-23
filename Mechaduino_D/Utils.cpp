@@ -379,7 +379,7 @@ float read_angle() {
 // is enabled during normal processing, all debugging information will be lost and 
 // unpredictable results may occur.
  
-#define PWD_DEBUG
+//#define PWD_DEBUG
 
 #define WDBuffSize 7
 
