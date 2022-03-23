@@ -429,6 +429,9 @@ void processWaveData(char waveData) {
                                             // holding field to binary zeros.
     dataPtr = newCharDist;                  // Point the data pointer to the
                                             // beginning of the distance field.
+#ifdef PWD_DEBUG
+    SerialUSB.print("W\n");
+#endif
     return;
   }
 
