@@ -1,2 +1,2 @@
 #!/bin/bash
-wget -O - https://www.ndbc.noaa.gov/station_page.php?station=44017 | getwavedata | processwavedata | sendwavedata $1
+wget -O - https://www.ndbc.noaa.gov/station_page.php?station=44017 | getwavedata | processwavedata | sendwavedata -- $1
