@@ -9,9 +9,11 @@
 #include <termios.h> // Contains POSIX terminal control definitions
 #include <unistd.h> // write(), read(), close()
 
-#define ARG_MAX_STRING_LEN  6
-#define FN_MAX_STRING_LEN   1023
-#define SERIAL_DATA_STREAM_LEN  16
+#define DATA_LEN  7
+#define DATA_BUFFER_LEN  128
+#define SERIAL_DATA_LEN  18
+#define DIST_OFFSET 6
+#define VEL_OFFSET 5
 
 void printHelp(void) {
   printf("Didn't work...\n");
@@ -20,113 +22,105 @@ void printHelp(void) {
 int main(int argc, char *argv[]) {
 
   int argIx;  // argument index
-  int operandLen; // Operand length temporary storage.
-  char waveHeight[ARG_MAX_STRING_LEN + 1];  // string storage for wave heigth
-  char wavePeriod[ARG_MAX_STRING_LEN + 1];  // string storage for wave period
-  char fn[FN_MAX_STRING_LEN + 1]; // string storage for file name
-  char serialDataString[SERIAL_DATA_STREAM_LEN];  // string storage for serial data string.
+
+  char *buffPtr;
+
+  char chardist[DATA_LEN + 1];  // string storage for wave heigth
+  char charvel[DATA_LEN + 1];  // string storage for wave period
+  char dataBuffer[DATA_BUFFER_LEN];  // string storage for serial data string.
+  char serialData[SERIAL_DATA_LEN];
+
+  float dist;
+  float vel;
+
+  FILE * inf = stdin;
+  FILE * otf = stdout;
+
+  int useSerialPort = false;
+
+  int serialPort;  
+
   struct termios tty; // termios struct, we call it 'tty' for convention
-  int serialPort; // file descriptor index. 
-
-
-// We are expecting at least one argument.
-  if (argc == 1) {
-    printf("\nError: No arguments specified!!!\n\n");
-    printHelp();
-    exit(1);
-  }
 
   // Initialize the local variables.
   argIx = 1;
-  waveHeight[0] = '\0';
-  wavePeriod[0] = '\0';
-  fn[0] = '\0';
-  serialDataString[0] = '\0';
 
   // check the arguments.
-  while (argIx < argc) {
-    if (argv[argIx][0] == '-') {
-      switch (argv[argIx][1]) {
+  if (argc > 1) {
+    if ((strcmp(argv[1], "-h") == 0) || 
+        (strcmp(argv[1], "--help") == 0)) {
+      printHelp();
+      exit(0);
+    }
 
-        case 'w':
-          if ((operandLen = strlen(argv[++argIx])) > ARG_MAX_STRING_LEN) {
-            printf("\nError: Wave heigth value too long, should be no more than 6 characters!\n\n");
-            printHelp();
-            exit (1);
-          }
+    if (!((strcmp(argv[1], "-") == 0) ||
+        (strcmp(argv[1], "--") == 0))) {
 
-          strcpy(waveHeight, argv[argIx]);
-          ++argIx;
-          continue;
-
-        case 'p':
-
-          if ((operandLen = strlen(argv[++argIx])) > ARG_MAX_STRING_LEN) {
-            printf("\nError: Wave period value too long, should be no more than 6 characters!\n\n");
-            printHelp();
-            exit (1);
-          }
-
-          strcpy(wavePeriod, argv[argIx]);
-          ++argIx;
-          continue;
-       
-        case 'f':
-          if (strlen(argv[++argIx]) > FN_MAX_STRING_LEN ) {
-            printf("\nError: Serial port file name too long.  Must be less than or equal to %i.\n\n", FN_MAX_STRING_LEN );
-            printHelp();
-            exit(1);
-          }
-
-          strcpy(fn, argv[argIx]);
-          ++argIx;
-          continue;
-
-        case 'h':
-
-          printHelp();
-          exit(0);
-
-        default:
-          printf("Error: Invalid switch %c!!!\n\n", argv[argIx][1]);
-          printHelp();
-          exit(1);
+      // Try to open the input file name.
+      if ((inf = fopen(argv[1], "r")) == NULL) {
+          perror("Error while opening input file.\n");
+          exit(-1);
       }
-    } else {
-      if (argv[argIx][0] != '\0') {
-        printf("Error: Too many arguments received!!!\n\n");
-        printHelp();
-        exit(1);
+    }
+ 
+    if (argc > 2) {
+      if (!((strcmp(argv[2], "-") == 0) ||
+           (strcmp(argv[2], "--") == 0))) {
+        // Try to open the output file name.
+        if((serialPort = open(argv[2], O_RDWR)) == -1) {
+          // Open failed.  Inform user and quit.
+          perror("Error while opening serial port.\n");
+          exit(-1);
+        }
+        useSerialPort = true;
       }
+    }
+
+    if (argc > 3) {
+      printf("Too many arguments specified.  Only a maximum of 2 may be specified!\n");
+      printHelp();
     }
   } 
 
-  if (waveHeight[0] == '\0') {
-    printf("Error: Wave heigth argument not received!!!\n\n");
-    printHelp();
-    exit(1);
+  while (1) {   // Scan the file until end of file is received.
+    // Get a line from the data file
+    if (fgets(dataBuffer, DATA_BUFFER_LEN, inf) == NULL) {
+      if (feof(inf)) {   // Check for end of file condition 
+        break;  // if EOF received break out of the loop.
+      }
+      else {  // If not EOF, some other error was received.
+        perror("Error while reading file.\n");
+        exit(-1);  // exit with an error condition.
+      }
+    }
+
+    // Scan the line looking for keyword.
+    if ((buffPtr = strstr(dataBuffer, "dist = ")) != NULL) {
+      strncpy(chardist, buffPtr + DIST_OFFSET, DATA_LEN);  // Found the keyword, move it to the output buffer.
+      dist = strtof(chardist, NULL);
+      continue; // Go back and look for more.
+    }
+
+    // Scan the line looking for keyword.
+    if ((buffPtr = strstr(dataBuffer, "vel = ")) != NULL) {
+      strncpy(charvel, buffPtr + VEL_OFFSET, DATA_LEN);  // Found the keyword, move it to the output buffer.
+      vel = strtof(charvel, NULL);
+      continue; // Go back and look for more.
+    }
   }
 
-  if (wavePeriod[0] == '\0') {
-    printf("Error: Wave period argument not received!!!\n\n");
-    printHelp();
-    exit(1);
+  strcat(serialData, "W");
+  sprintf(dataBuffer, "%4.2f", dist);
+  strcat(serialData, dataBuffer);
+  strcat(serialData, ",");
+  sprintf(dataBuffer, "%4.2f", vel);
+  strcat(serialData, dataBuffer);
+  strcat(serialData, ";");
+
+  if (useSerialPort == false) {
+    fprintf(otf, "%s\n", serialData);
+    return(0);
   }
-
-  if (fn[0] == '\0') {
-    printf("Error: Serial file name not received!!!\n\n");
-    printHelp();
-    exit(1);
-  }
-
-  strcat(serialDataString, "W");
-  strcat(serialDataString, waveHeight);
-  strcat(serialDataString, ",");
-  strcat(serialDataString, wavePeriod);
-  strcat(serialDataString, ";");
-
-  // Open the serial port. Change device path as needed (currently set to an standard FTDI USB-UART cable type device)
-  serialPort = open(fn, O_RDWR);
 
   // Read in existing settings, and handle any error
   if(tcgetattr(serialPort, &tty) != 0) {
@@ -168,7 +162,7 @@ int main(int argc, char *argv[]) {
   }
 
   // Write to serial port
-  write(serialPort, serialDataString, strlen(serialDataString));
+  write(serialPort, serialData, strlen(serialData));
   close(serialPort);
   return 0; // success
 };

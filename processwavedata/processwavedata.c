@@ -20,12 +20,14 @@ void printHelp(void) {
 
 int main (int argc, char *argv[])
 {
-  FILE *ifp;
-  FILE *ofp;
+  FILE *ifp = stdin;
+  FILE *ofp = stdout;
+
   char DataBuffer[DATA_BUFF_LEN];
   char *BuffPtr;
   char charWVHT[7];
   char charSwP[7];
+
   float wvht;
   float swp;
   float dist;
@@ -38,32 +40,25 @@ int main (int argc, char *argv[])
       exit(0);
     }
 
-    if ((strcmp(argv[1], "-") == 0) ||
-        (strcmp(argv[1], "--") == 0)) {
-      ifp = stdin;
-    } else {
-      // Try to open the input file name.
-      ifp = fopen(argv[1], "r");
+    if (!((strcmp(argv[1], "-") == 0) ||
+        (strcmp(argv[1], "--") == 0))) {
 
-      // Open failed.  Inform user and quit.
-      if (ifp == NULL) {
-        perror("Error while input opening file.\n");
-        exit(-1);
+      // Try to open the input file name.
+      if ((ifp = fopen(argv[1], "r")) == NULL) {
+          perror("Error while input opening file.\n");
+          exit(-1);
       }
     }
  
     if (argc > 2) {
-      if ((strcmp(argv[2], "-") == 0) ||
-          (strcmp(argv[2], "--") == 0)) {
-        ofp = stdout;
-      } else {
+      if (!((strcmp(argv[2], "-") == 0) ||
+           (strcmp(argv[2], "--") == 0))) {
         // Try to open the output file name.
-        ofp = fopen(argv[2], "w");
-
-        // Open failed.  Inform user and quit.
-        if (ifp == NULL) {
+        if((ofp = fopen(argv[2], "w")) == NULL) {
+          // Open failed.  Inform user and quit.
           perror("Error while opening output file.\n");
           exit(-1);
+          
         }
       }
     }
@@ -72,10 +67,7 @@ int main (int argc, char *argv[])
       printf("Too many arguments specified.  Only a maximum of 2 may be specified!\n");
       printHelp();
     }
-  } else {
-    ifp = stdin;
-    ofp = stdout;
-  }
+  } 
   
   while (1) {   // Scan the file until end of file is received.
     // Get a line from the data file
@@ -113,10 +105,6 @@ int main (int argc, char *argv[])
     wvht = 10.99;
   }
 
-//  if (swp > 4.375) {
-//    swp = 4.375;
-//  }
-
   // Formula from Cy's spec "distance = (SwH / 2)*1350"
   dist = (wvht / 2) * 1350;
 
@@ -124,8 +112,8 @@ int main (int argc, char *argv[])
   vel = (-216.7 * (swp / wvht)) + 1247; 
 
   // Print the output values.  
-  fprintf(ofp, "dist = %f\n", dist);
-  fprintf(ofp, "vel = %f\n", vel);
+  fprintf(ofp, "dist = %3.2f\n", dist);
+  fprintf(ofp, "vel = %3.2f\n", vel);
   fclose(ifp);
   fclose(ofp);
   return(0);

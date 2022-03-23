@@ -381,7 +381,7 @@ float read_angle() {
  
 //#define PWD_DEBUG
 
-#define WDBuffSize 7
+#define WDBuffSize 8
 
 static char newCharDist[WDBuffSize];  // Holding area for new wave distance.
 static char newCharVel[WDBuffSize];   // Holding area for new wave velocity.
@@ -429,6 +429,9 @@ void processWaveData(char waveData) {
                                             // holding field to binary zeros.    
     dataPtr = newCharDist;                  // Point the data pointer to the
                                             // beginning of the distance field.
+#ifdef PWD_DEBUG
+    SerialUSB.print("W\n");
+#endif
     return;
   }
 

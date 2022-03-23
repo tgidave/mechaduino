@@ -22,7 +22,7 @@
   http://www.arduino.cc/en/Tutorial/Blink
 */
 
-//#define SERIAL_BLINK_DEBUG
+#define SERIAL_BLINK_DEBUG
 
 #define WDBuffSize 7
 
