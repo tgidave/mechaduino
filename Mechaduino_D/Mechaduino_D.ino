@@ -59,8 +59,8 @@ int velocity = 100;
 // are moved here after they are received.  They will be processed
 // in the loop after the serialCheck routine returns.
 
-  float newDist;
-  int  newVel;
+float newDist;
+int  newVel;
 
 void updateWaveData(float newPwdDist, int newPwdVel) {
   newDist = newPwdDist;
@@ -115,8 +115,8 @@ void loop()                 // main loop
   // If a new distance or velocity was received.
   if (!((distance == newDist) && (velocity == newVel))) {
 
-    if ((newDist - distance) != 0) {
-      moveRel((newDist - distance), newVel, 20); // Move the motor to the new bottom point.
+    if ((distance - newDist) != 0) {
+      moveRel((distance - newDist), newVel, 100); // Move the motor to the new bottom point.
     }
 
     distance = newDist; // Update the distance value with the new distance value.

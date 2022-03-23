@@ -379,7 +379,7 @@ float read_angle() {
 // is enabled during normal processing, all debugging information will be lost and 
 // unpredictable results may occur.
  
-//#define PWD_DEBUG
+#define PWD_DEBUG
 
 #define WDBuffSize 7
 
@@ -414,9 +414,6 @@ void processWaveData(char waveData) {
 
   float newPwdDist;
   int newPwdVel;
-
-//  float newDist;  // New distance value converted to float type here.
-//  int newVel;  // New velocity value converted to float type here.
 
   if (waveData == '\0') { // If a binary zero was received just initialize 
                           // this routine and return; 
@@ -456,9 +453,9 @@ void processWaveData(char waveData) {
     updateWaveData(newPwdDist, newPwdVel);
 
 #ifdef PWD_DEBUG
-    SerialUSB.print(newDist, 2);
+    SerialUSB.print(newPwdDist, 2);
     SerialUSB.write('\n');
-    SerialUSB.print(newVel);
+    SerialUSB.print(newPwdVel);
     SerialUSB.write('\n');
 #endif
     return;
