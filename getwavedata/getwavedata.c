@@ -19,6 +19,10 @@
 #define WVHT_OFFSET 40
 #define SWP_OFFSET  28
 
+void printHelp(void) {
+  printf("something went wrong somewhere!\n");
+}
+
 int main (int argc, char *argv[])
 {
   FILE *ifp;
@@ -28,9 +32,8 @@ int main (int argc, char *argv[])
   char WVHT[6];
   char SwP[6];
 
-  void printHelp(void) {
-    printf("something went wrong somewhere!\n");
-  }
+  ifp = stdin;
+  ofp = stdout;
 
   if (argc > 1) {
     if ((strcmp(argv[1], "-h") == 0) || 
@@ -39,25 +42,21 @@ int main (int argc, char *argv[])
       exit(0);
     }
 
-    if ((strcmp(argv[1], "-") == 0) ||
-        (strcmp(argv[1], "--") == 0)) {
-      ifp = stdin;
-    } else {
+    if (!((strcmp(argv[1], "-") == 0) ||
+        (strcmp(argv[1], "--") == 0))) {
       // Try to open the input file name.
       ifp = fopen(argv[1], "r");
 
       // Open failed.  Inform user and quit.
       if (ifp == NULL) {
-        perror("Error while input opening file.\n");
+        perror("Error while opening input file.\n");
         exit(-1);
       }
     }
  
     if (argc > 2) {
-      if ((strcmp(argv[2], "-") == 0) ||
-          (strcmp(argv[2], "--") == 0)) {
-        ofp = stdout;
-      } else {
+      if (!((strcmp(argv[2], "-") == 0) ||
+          (strcmp(argv[2], "--") == 0))) {
         // Try to open the output file name.
         ofp = fopen(argv[2], "w");
 
@@ -73,9 +72,6 @@ int main (int argc, char *argv[])
       printf("Too many arguments specified.  Only a maximum of 2 may be specified!\n");
       printHelp();
     }
-  } else {
-    ifp = stdin;
-    ofp = stdout;
   }
   
   while (1) {   // Scan the file until end of file is received.
