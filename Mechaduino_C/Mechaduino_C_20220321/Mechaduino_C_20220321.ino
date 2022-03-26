@@ -137,10 +137,10 @@ void loop()                 // main loop
   serialCheck();              //must have this execute in loop for serial commands to function
 
   // If a new distance or velocity was received.
-  if (!((distance == newDist) && (velocity == newVel))) {
+  if (!((newDist == distance) && (newVel == velocity))) {
 
-    if ((distance - newDist) != 0) {
-      moveRel((distance - newDist), newVel, 500); // Move the motor to the new bottom point.
+    if ((newDist - distance) != 0) {
+      moveRel((newDist - distance) / 2, newVel, 500); // Move the motor to the new bottom point.
     }
 
     // Update the distance value with the new distance value.
