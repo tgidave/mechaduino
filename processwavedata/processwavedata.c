@@ -106,10 +106,12 @@ int main (int argc, char *argv[])
   }
 
   // Formula from Cy's spec "distance = (SwH / 2)*1350"
-  dist = (wvht / 2) * 1350;
+  dist = (wvht / 3) * 1350;
 
   // Formula from Cy's spec "velocity = -216.7(SwP/SwH)+ 1247"
-  vel = (-216.7 * (swp / wvht)) + 1247; 
+  vel = (-216.7 * (swp / wvht)) + 1247;
+  // Slow this velocity down a bit
+  vel = vel * 0.7; 
 
   // Print the output values.  
   fprintf(ofp, "dist = %3.2f\n", dist);
